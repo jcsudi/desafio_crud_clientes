@@ -32,4 +32,19 @@ public class ClientService {
         Page<ClientDTO> clientDTOS = clients.map(x -> new ClientDTO(x));
         return clientDTOS;
     }
+
+    @Transactional()
+    public ClientDTO insert(ClientDTO dto){
+        Client client = new Client();
+
+        client.setName(dto.getName());
+        client.setCpf(dto.getCpf());
+        client.setIncome(dto.getIncome());
+        client.setBirthDate(dto.getBirthDate());
+        client.setChildren(dto.getChildren());
+
+        client =  repository.save(client);
+
+        return new ClientDTO(client);
+    }
 }

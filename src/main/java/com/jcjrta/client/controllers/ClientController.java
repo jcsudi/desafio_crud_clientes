@@ -31,10 +31,16 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<ClientDTO> dto (@RequestBody ClientDTO dto){
+    public ResponseEntity<ClientDTO> dto(@RequestBody ClientDTO dto){
         dto =  service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(dto.getId()).toUri();
         return ResponseEntity.created(uri).body(dto);
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @RequestBody ClientDTO dto){
+        ClientDTO dto1 = service.update(dto, id);
+        return ResponseEntity.ok(dto1);
     }
 }

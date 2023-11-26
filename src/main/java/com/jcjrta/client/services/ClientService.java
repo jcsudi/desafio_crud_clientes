@@ -3,7 +3,11 @@ package com.jcjrta.client.services;
 import com.jcjrta.client.dto.ClientDTO;
 import com.jcjrta.client.entities.Client;
 import com.jcjrta.client.repositories.ClientRepository;
+import com.jcjrta.client.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,7 @@ public class ClientService {
     @Transactional(readOnly = true)
     public ClientDTO findById (Long id){
         Optional<Client> result = repository.findById(id);
-        Client c = result.get();
+        Client c = result.orElseThrow(() -> new ResourceNotFoundException("Cliente inexistente"));
         ClientDTO dto = new ClientDTO(c);
         return dto;
     }
@@ -44,16 +48,30 @@ public class ClientService {
 
     @Transactional()
     public ClientDTO update(ClientDTO dto, Long id){
-        Client client = repository.getReferenceById(id);
-        copyDtoClient(dto, client);
-        Client client1 = repository.save(client);
-        return new ClientDTO(client1);
+        try {
+            Client client = repository.getReferenceById(id);
+            copyDtoClient(dto, client);
+            Client client1 = repository.save(client);
+            return new ClientDTO(client1);
+
+        }
+        catch (EntityNotFoundException e){
+            throw new ResourceNotFoundException("Cliente inexistente");
+        }
     }
 
+
     @Transactional()
-    public void delete(Long id){
-        repository.deleteById(id);
+    public void delete(Long id) {
+        if (!repository.existsById(id))
+            throw new ResourceNotFoundException("Cliente inexistente");
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceNotFoundException("Cliente inexistente");
+        }
     }
+
 
     private void copyDtoClient(ClientDTO dto, Client client) {
         client.setName(dto.getName());

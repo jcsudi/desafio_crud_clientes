@@ -2,6 +2,7 @@ package com.jcjrta.client.controllers;
 
 import com.jcjrta.client.dto.ClientDTO;
 import com.jcjrta.client.services.ClientService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +32,7 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<ClientDTO> dto(@RequestBody ClientDTO dto){
+    public ResponseEntity<ClientDTO> dto(@Valid @RequestBody ClientDTO dto){
         dto =  service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(dto.getId()).toUri();
@@ -39,13 +40,13 @@ public class ClientController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @RequestBody ClientDTO dto){
+    public ResponseEntity<ClientDTO> delete(@PathVariable Long id, @Valid @RequestBody ClientDTO dto){
         ClientDTO dto1 = service.update(dto, id);
         return ResponseEntity.ok(dto1);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    public ResponseEntity<Void> update(@PathVariable Long id){
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
